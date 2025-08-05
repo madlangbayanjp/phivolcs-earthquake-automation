@@ -23,5 +23,3 @@ This project automatically scrapes **real-time earthquake data** from the [PHIVO
 4. Tableau is connected to the CSV (or Google Sheets) for **live updates**.
 
 ---
-
-## 📂 Repository Structure
