@@ -1,10 +1,6 @@
 # ================================
 # PHIVOLCS Earthquake Scraper - Gitignore
 # ================================
-
-# Ignore CSV files (scraper will auto-update)
-*.csv
-
 # Ignore log files
 *.log
 scrape_log.txt
