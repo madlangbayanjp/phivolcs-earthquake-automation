@@ -21,6 +21,7 @@ manual_combine.py
 # Ignore personal reference guides
 MONTHLY_SCRAPING_GUIDE.md
 DATASET_COMBINATION_GUIDE.md
+GITHUB_ACTIONS_SCRAPING_GUIDE.md
 
 # Ignore credentials (VERY IMPORTANT - keep secret)
 *.json
