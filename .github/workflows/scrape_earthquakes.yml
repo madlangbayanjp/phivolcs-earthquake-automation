@@ -37,7 +37,10 @@ jobs:
         else
           echo "changes=false" >> $GITHUB_OUTPUT
         fi
-        
+    
+    - name: Debug .gitignore for CSV
+      run: git check-ignore -v phivolcs_earthquakes_master.csv || echo "Not ignored"
+    
     - name: Commit and push if changes
       if: steps.check_changes.outputs.changes == 'true'
       run: |
