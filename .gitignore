@@ -1,0 +1,26 @@
+# ================================
+# PHIVOLCS Earthquake Scraper - Gitignore
+# ================================
+
+# Ignore CSV files (scraper will auto-update)
+*.csv
+
+# Ignore log files
+*.log
+scrape_log.txt
+
+# Ignore Python cache files
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore local test scripts (keep only GitHub Actions script)
+scrape_every_ten_mins.py
+manual_combine.py
+
+# Ignore personal reference guides
+MONTHLY_SCRAPING_GUIDE.md
+DATASET_COMBINATION_GUIDE.md
+
+# Ignore credentials (VERY IMPORTANT - keep secret)
+*.json

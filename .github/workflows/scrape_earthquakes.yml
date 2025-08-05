@@ -1,0 +1,46 @@
+name: Scrape PHIVOLCS Earthquakes
+
+on:
+  schedule:
+    # Run every 10 minutes
+    - cron: '*/10 * * * *'
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        pip install requests beautifulsoup4 pandas
+        
+    - name: Run earthquake scraper
+      run: |
+        python scrape_github_actions.py
+        
+    - name: Check for changes
+      id: check_changes
+      run: |
+        if [ -f phivolcs_earthquakes_master.csv ]; then
+          echo "changes=true" >> $GITHUB_OUTPUT
+        else
+          echo "changes=false" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Commit and push if changes
+      if: steps.check_changes.outputs.changes == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add phivolcs_earthquakes_master.csv
+        git commit -m "Update earthquake data - $(date)"
+        git push 
