@@ -41,6 +41,6 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add phivolcs_earthquakes_master.csv
+        git add -f phivolcs_earthquakes_master.csv
         git commit -m "Update earthquake data - $(date)"
         git push 
