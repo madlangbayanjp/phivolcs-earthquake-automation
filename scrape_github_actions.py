@@ -107,15 +107,26 @@ def month_filename_from_datetime_str(dt_str: str) -> str:
     - a few common ISO-like variations
     """
 
-    s = re.sub(r"\s+", " ", str(dt_str).strip())
+    s = str(dt_str).replace("\u00A0", " ")  # NBSP -> space
+    s = re.sub(r"\s+", " ", s.strip())
     # Normalize different dash characters
     s = s.replace("–", "-").replace("—", "-")
+    # Trim after AM/PM (some pages append timezone, e.g., 'AM PST')
+    m = re.match(r"^(.*?\b(?:AM|PM)\b)", s, flags=re.IGNORECASE)
+    if m:
+        s = m.group(1)
+    # Normalize am/pm casing
+    s = re.sub(r"\b(am|pm)\b", lambda m: m.group(1).upper(), s, flags=re.IGNORECASE)
 
     candidates = [
         "%Y-%m-%d %H:%M:%S",
         "%Y-%m-%d %H:%M",
         "%d %B %Y - %I:%M %p",
         "%d %b %Y - %I:%M %p",
+        "%d %B %Y %I:%M %p",
+        "%d %b %Y %I:%M %p",
+        "%d %B %Y, %I:%M %p",
+        "%d %b %Y, %I:%M %p",
         "%Y/%m/%d %H:%M:%S",
         "%Y/%m/%d %H:%M",
     ]
