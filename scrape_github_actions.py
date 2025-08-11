@@ -97,12 +97,44 @@ def scrape_latest_month():
         return []
 
 def month_filename_from_datetime_str(dt_str: str) -> str:
-    """Return the monthly CSV filename for a given Date-Time string (YYYY-MM-DD HH:MM:SS)."""
-    try:
-        dt = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
-    except ValueError:
-        # Fallback: try to be lenient
-        dt = datetime.fromisoformat(dt_str.replace("/", "-").replace("T", " "))
+    """Return the monthly CSV filename for a given Date-Time string.
+
+    Supports multiple formats observed on PHIVOLCS pages, including:
+    - YYYY-MM-DD HH:MM:SS
+    - YYYY-MM-DD HH:MM
+    - DD Month YYYY - HH:MM AM/PM  (e.g., '11 August 2025 - 12:07 PM')
+    - DD Mon YYYY - HH:MM AM/PM    (e.g., '11 Aug 2025 - 12:07 PM')
+    - a few common ISO-like variations
+    """
+
+    s = re.sub(r"\s+", " ", str(dt_str).strip())
+    # Normalize different dash characters
+    s = s.replace("–", "-").replace("—", "-")
+
+    candidates = [
+        "%Y-%m-%d %H:%M:%S",
+        "%Y-%m-%d %H:%M",
+        "%d %B %Y - %I:%M %p",
+        "%d %b %Y - %I:%M %p",
+        "%Y/%m/%d %H:%M:%S",
+        "%Y/%m/%d %H:%M",
+    ]
+
+    dt = None
+    for fmt in candidates:
+        try:
+            dt = datetime.strptime(s, fmt)
+            break
+        except ValueError:
+            continue
+
+    if dt is None:
+        # Last-resort cleaning for ISO-like strings
+        try:
+            dt = datetime.fromisoformat(s.replace("/", "-").replace("T", " "))
+        except Exception as e:
+            raise ValueError(f"Unrecognized date format for '{dt_str}'") from e
+
     return f"phivolcs_earthquakes_{dt.year}_{dt.month:02d}.csv"
 
 def append_new_data_partitioned(latest_data) -> int:
