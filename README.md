@@ -12,7 +12,7 @@ This project automatically scrapes **earthquake data** from the [PHIVOLCS websit
 - **Monthly Data Organization**: Each month gets its own CSV file for clean data management.
 ---
 
-## ⚙ How It Works
+## How It Works
 1. **GitHub Actions** runs the Python scraper monthly on the 1st of each month.
 2. Scraper checks the **PHIVOLCS "Latest Month"** page for new earthquakes.
 3. New records are appended to the current month's CSV file.
