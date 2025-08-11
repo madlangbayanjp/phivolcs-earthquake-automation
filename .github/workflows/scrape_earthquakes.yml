@@ -2,8 +2,8 @@ name: Scrape PHIVOLCS Earthquakes
 
 on:
   schedule:
-    # Run every 30 minutes (UTC)
-    - cron: '*/30 * * * *'
+    # Run on the 1st of each month at 00:00 UTC
+    - cron: '0 0 1 * *'
   workflow_dispatch:  # Allow manual triggering
 
 # Grant the GITHUB_TOKEN permission to push commits
@@ -37,14 +37,11 @@ jobs:
       id: check_changes
       run: |
         git status --porcelain
-        if git status --porcelain | grep -E 'phivolcs_earthquakes_.*\.csv|scrape_log\.txt' >/dev/null; then
+        if git status --porcelain | grep -E 'phivolcs_earthquakes_.*\.csv' >/dev/null; then
           echo "changes=true" >> $GITHUB_OUTPUT
         else
           echo "changes=false" >> $GITHUB_OUTPUT
         fi
-    
-    - name: Debug .gitignore for CSV
-      run: git check-ignore -v phivolcs_earthquakes_*.csv || echo "Not ignored"
     
     - name: List files after scraping
       run: ls -l phivolcs_earthquakes_*.csv || echo "No monthly CSVs yet"
@@ -55,7 +52,7 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add -A
-        git commit -m "Update earthquake data - $(date)"
+        git commit -m "Update earthquake data for $(date +%B %Y)"
         # Ensure pushes authenticate using GITHUB_TOKEN
         git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
         git push origin HEAD
