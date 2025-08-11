@@ -140,11 +140,48 @@ def month_filename_from_datetime_str(dt_str: str) -> str:
             continue
 
     if dt is None:
-        # Last-resort cleaning for ISO-like strings
-        try:
-            dt = datetime.fromisoformat(s.replace("/", "-").replace("T", " "))
-        except Exception as e:
-            raise ValueError(f"Unrecognized date format for '{dt_str}'") from e
+        # Try regex-based parse for 'DD Month YYYY - HH:MM AM/PM'
+        m = re.match(
+            r"^(?P<day>\d{1,2})\s+(?P<mon>[A-Za-z]+)\s+(?P<year>\d{4})\s*-\s*(?P<hour>\d{1,2}):(?P<min>\d{2})\s*(?P<ampm>AM|PM)$",
+            s,
+            flags=re.IGNORECASE,
+        )
+        if m:
+            day = int(m.group('day'))
+            year = int(m.group('year'))
+            hour = int(m.group('hour'))
+            minute = int(m.group('min'))
+            ampm = m.group('ampm').upper()
+            mon_name = m.group('mon').lower()
+            month_map = {
+                'january': 1, 'jan': 1,
+                'february': 2, 'feb': 2,
+                'march': 3, 'mar': 3,
+                'april': 4, 'apr': 4,
+                'may': 5,
+                'june': 6, 'jun': 6,
+                'july': 7, 'jul': 7,
+                'august': 8, 'aug': 8,
+                'september': 9, 'sep': 9, 'sept': 9,
+                'october': 10, 'oct': 10,
+                'november': 11, 'nov': 11,
+                'december': 12, 'dec': 12,
+            }
+            if mon_name not in month_map:
+                raise ValueError(f"Unrecognized month name in '{dt_str}'")
+            month = month_map[mon_name]
+            # Convert to 24h
+            if ampm == 'AM':
+                hour24 = 0 if hour == 12 else hour
+            else:
+                hour24 = 12 if hour == 12 else hour + 12
+            dt = datetime(year, month, day, hour24, minute)
+        else:
+            # Last-resort cleaning for ISO-like strings
+            try:
+                dt = datetime.fromisoformat(s.replace("/", "-").replace("T", " "))
+            except Exception as e:
+                raise ValueError(f"Unrecognized date format for '{dt_str}'") from e
 
     return f"phivolcs_earthquakes_{dt.year}_{dt.month:02d}.csv"
 
