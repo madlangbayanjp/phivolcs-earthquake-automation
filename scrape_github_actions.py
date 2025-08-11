@@ -140,11 +140,10 @@ def month_filename_from_datetime_str(dt_str: str) -> str:
             continue
 
     if dt is None:
-        # Try regex-based parse for 'DD Month YYYY - HH:MM AM/PM'
-        m = re.match(
-            r"^(?P<day>\d{1,2})\s+(?P<mon>[A-Za-z]+)\s+(?P<year>\d{4})\s*-\s*(?P<hour>\d{1,2}):(?P<min>\d{2})\s*(?P<ampm>AM|PM)$",
+        # Try regex-based parse for 'DD Month YYYY - HH:MM AM/PM' allowing extra separators
+        m = re.search(
+            r"(?i)(?P<day>\d{1,2})\s+(?P<mon>[A-Za-z]+)\s+(?P<year>\d{4})[^\dA-Za-z]+(?P<hour>\d{1,2}):(?P<min>\d{2})\s*(?P<ampm>AM|PM)",
             s,
-            flags=re.IGNORECASE,
         )
         if m:
             day = int(m.group('day'))
@@ -177,11 +176,7 @@ def month_filename_from_datetime_str(dt_str: str) -> str:
                 hour24 = 12 if hour == 12 else hour + 12
             dt = datetime(year, month, day, hour24, minute)
         else:
-            # Last-resort cleaning for ISO-like strings
-            try:
-                dt = datetime.fromisoformat(s.replace("/", "-").replace("T", " "))
-            except Exception as e:
-                raise ValueError(f"Unrecognized date format for '{dt_str}'") from e
+            raise ValueError(f"Unrecognized date format for '{dt_str}'")
 
     return f"phivolcs_earthquakes_{dt.year}_{dt.month:02d}.csv"
 
