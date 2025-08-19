@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 PHIVOLCS Earthquake Scraper for GitHub Actions
-Optimized for automated scraping every 10 minutes
+Optimized for automated scraping every month
 """
 
 import requests
@@ -15,9 +15,7 @@ import urllib3
 # Disable SSL warnings
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-# === Config ===
-# We now write per-month CSV files, e.g., phivolcs_earthquakes_2025_08.csv
-# to avoid a single ever-growing master file.
+
 LATEST_URL = "https://earthquake.phivolcs.dost.gov.ph/"
 LOG_FILE = "scrape_log.txt"
 
@@ -27,7 +25,6 @@ def log_message(message):
     log_entry = f"[{timestamp}] {message}"
     print(log_entry)
     
-    # Also write to log file
     with open(LOG_FILE, "a", encoding="utf-8") as f:
         f.write(log_entry + "\n")
 
@@ -77,7 +74,8 @@ def scrape_latest_month():
             log_message("⚠️ No earthquake table found on latest month page.")
             return []
 
-        rows = earthquake_table.find_all("tr")[1:]  # Skip header
+        # Skip header
+        rows = earthquake_table.find_all("tr")[1:]  
         data = []
         
         for row in rows:
